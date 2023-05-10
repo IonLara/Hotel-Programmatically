@@ -8,7 +8,7 @@
 import UIKit
 
 class AddReservationTableViewController: UITableViewController {
-
+    
     var roomType: RoomType?
     
     //Cells Id's
@@ -17,10 +17,25 @@ class AddReservationTableViewController: UITableViewController {
     let lastNameCell = TextInputTableViewCell()
     let emailCell = TextInputTableViewCell()
     let dateLabelCell = "DateLabel"
+    let checkInLabelCell = DateLabelTableViewCell()
+    let checkOutLabelCell = DateLabelTableViewCell()
     let datePickerCell = "DatePicker"
+    let checkInPickerCell = DatePickerTableViewCell()
+    let checkOutPickerCell = DatePickerTableViewCell()
     let stepperCell = "Stepper"
     let switchCell = "Switch"
     let roomTypeCell = "RoomType"
+    
+    var isCheckInPickerVisible = false {
+        didSet {
+            checkInPickerCell.isHidden = !isCheckInPickerVisible
+        }
+    }
+    var isCheckOutPickerVisible = false {
+        didSet {
+            checkOutPickerCell.isHidden = !isCheckOutPickerVisible
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +47,25 @@ class AddReservationTableViewController: UITableViewController {
         firstNameCell.textField.placeholder = "First Name"
         lastNameCell.textField.placeholder = "Last Name"
         emailCell.textField.placeholder = "Email"
+        
+        checkInPickerCell.isHidden = true
+        checkOutPickerCell.isHidden = true
+        
+        checkInPickerCell.datePicker.addTarget(self, action: #selector(dateValueChanged(_:)), for: .valueChanged)
+        checkOutPickerCell.datePicker.addTarget(self, action: #selector(dateValueChanged(_:)), for: .valueChanged)
+        
+        checkInPickerCell.datePicker.minimumDate = Calendar.current.startOfDay(for: Date())
+        updateDatePickers()
+    }
+    
+    func updateDatePickers() {
+        checkOutPickerCell.datePicker.minimumDate = Calendar.current.date(byAdding: .day, value: 1, to: checkInPickerCell.datePicker.date)
+        
+        checkInLabelCell.detailTextLabel?.text = checkInPickerCell.datePicker.date.formatted(date: .abbreviated, time: .omitted)
+        checkOutLabelCell.detailTextLabel?.text = checkOutPickerCell.datePicker.date.formatted(date: .abbreviated, time: .omitted)
+    }
+    @objc func dateValueChanged(_ sender: UIDatePicker) {
+        updateDatePickers()
     }
 
     // MARK: - Table view data source
@@ -55,6 +89,23 @@ class AddReservationTableViewController: UITableViewController {
         }
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        if indexPath == [1,0] && !isCheckOutPickerVisible {
+            isCheckInPickerVisible.toggle()
+        } else if indexPath == [1,2] && !isCheckInPickerVisible {
+            isCheckOutPickerVisible.toggle()
+        } else if indexPath == [1,0] || indexPath == [1,2] {
+            isCheckInPickerVisible.toggle()
+            isCheckOutPickerVisible.toggle()
+        } else {
+            return
+        }
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath {
         case [0,0]:
@@ -63,6 +114,16 @@ class AddReservationTableViewController: UITableViewController {
             return lastNameCell
         case [0,2]:
             return emailCell
+        case [1,0]:
+            checkInLabelCell.textLabel?.text = "Check In Date"
+            return checkInLabelCell
+        case [1,1]:
+            return checkInPickerCell
+        case [1,2]:
+            checkOutLabelCell.textLabel?.text = "Check Out Date"
+            return checkOutLabelCell
+        case [1,3]:
+            return checkOutPickerCell
         default:
             let cell = tableView.dequeueReusableCell(withIdentifier: textInputCell, for: indexPath)
             var content = cell.defaultContentConfiguration()
@@ -71,60 +132,15 @@ class AddReservationTableViewController: UITableViewController {
             return cell
         }
     }
-
-    /*
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
-
-        // Configure the cell...
-
-        return cell
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch indexPath {
+        case [1,1] where !isCheckInPickerVisible:
+            return 0
+        case [1,3] where !isCheckOutPickerVisible:
+            return 0
+        default:
+            return UITableView.automaticDimension
+        }
     }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
