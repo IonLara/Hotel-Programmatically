@@ -9,7 +9,8 @@ import UIKit
 
 class AddReservationTableViewController: UITableViewController {
     
-    var roomType: RoomType?
+    var roomType: RoomType = RoomType.all[0]
+    var reservation: Reservation?
     
     //Cells Id's
     let textInputCell = "TextInput"
@@ -26,7 +27,9 @@ class AddReservationTableViewController: UITableViewController {
     let adultStepperCell = StepperTableViewCell()
     let childrenStepperCell = StepperTableViewCell()
     let switchCell = "Switch"
+    let wifiSwitchCell = SwitchTableViewCell()
     let roomTypeCell = "RoomType"
+    let roomCell = ChooseRoomTypeTableViewCell()
     
     var isCheckInPickerVisible = false {
         didSet {
@@ -144,6 +147,13 @@ class AddReservationTableViewController: UITableViewController {
         case [2,1]:
             childrenStepperCell.label.text = "Children"
             return childrenStepperCell
+        case [3,0]:
+            return wifiSwitchCell
+        case[4,0]:
+            roomCell.textLabel?.text = "Room Type"
+            roomCell.detailTextLabel?.text = "Two Queens"
+            roomCell.accessoryType = .disclosureIndicator
+            return roomCell
         default:
             let cell = tableView.dequeueReusableCell(withIdentifier: textInputCell, for: indexPath)
             var content = cell.defaultContentConfiguration()
