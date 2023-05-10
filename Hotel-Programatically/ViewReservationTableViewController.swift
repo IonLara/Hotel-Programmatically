@@ -7,9 +7,14 @@
 
 import UIKit
 
-class ViewReservationTableViewController: UITableViewController {
+class ViewReservationTableViewController: UITableViewController, AddReservationDelegate {
+    func add(_ reservation: Reservation) {
+        reservations.append(reservation)
+        tableView.insertRows(at: [IndexPath(row: reservations.count - 1, section: 0)], with: .automatic)
+    }
     
-    let reservations : [Reservation] = [Reservation(firstName: "Sampleton", lastName: "Fakeson", email: "notreal@gmail.com", checkInDate: Date(), checkOutDate: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, numOfAdults: 1, numOfChildren: 0, wifi: true, roomType: RoomType.all[0])]
+    
+    var reservations : [Reservation] = [Reservation(firstName: "Sampleton", lastName: "Fakeson", email: "notreal@gmail.com", checkInDate: Date(), checkOutDate: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, numOfAdults: 1, numOfChildren: 0, wifi: true, roomType: RoomType.all[0])]
     let cellId = "ReservationCell"
 
     override func viewDidLoad() {
@@ -23,6 +28,7 @@ class ViewReservationTableViewController: UITableViewController {
     
     func navigateToAddReservation() {
         let addResTVC = AddReservationTableViewController(style: .grouped)
+        addResTVC.delegate = self
         let addResNC = UINavigationController(rootViewController: addResTVC)
         present(addResNC, animated: true, completion: nil)
 //        let addEditTVC = AddEditEmojiTableViewController(style: .grouped)

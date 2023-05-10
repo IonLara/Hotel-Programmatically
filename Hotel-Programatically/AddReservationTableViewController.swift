@@ -7,10 +7,14 @@
 
 import UIKit
 
+protocol AddReservationDelegate: AnyObject {
+    func add(_ reservation: Reservation)
+}
+
 class AddReservationTableViewController: UITableViewController {
     
     var roomType: RoomType = RoomType.all[0]
-    var reservation: Reservation?
+    var delegate: AddReservationDelegate?
     
     //Cells Id's
     let textInputCell = "TextInput"
@@ -49,6 +53,10 @@ class AddReservationTableViewController: UITableViewController {
         
         tableView.register(TextInputTableViewCell.self, forCellReuseIdentifier: textInputCell)
         
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismissViewController))
+        // save button
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(addReservation))
+        
         firstNameCell.textField.placeholder = "First Name"
         lastNameCell.textField.placeholder = "Last Name"
         emailCell.textField.placeholder = "Email"
@@ -83,6 +91,16 @@ class AddReservationTableViewController: UITableViewController {
     
     @objc func stepperValueChanged(_ sender: UIStepper) {
         updateSteppers()
+    }
+    
+    @objc func addReservation() {
+        let reservation = Reservation(firstName: firstNameCell.textField.text ?? "", lastName: lastNameCell.textField.text ?? "", email: emailCell.textField.text ?? "", checkInDate: checkInPickerCell.datePicker.date, checkOutDate: checkOutPickerCell.datePicker.date, numOfAdults: Int(adultStepperCell.stepper.value), numOfChildren: Int(childrenStepperCell.stepper.value), wifi: wifiSwitchCell.wifiSwitch.isOn, roomType: roomType)
+        delegate?.add(reservation)
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func dismissViewController() {
+        dismiss(animated: true)
     }
 
     // MARK: - Table view data source
