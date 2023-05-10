@@ -23,6 +23,8 @@ class AddReservationTableViewController: UITableViewController {
     let checkInPickerCell = DatePickerTableViewCell()
     let checkOutPickerCell = DatePickerTableViewCell()
     let stepperCell = "Stepper"
+    let adultStepperCell = StepperTableViewCell()
+    let childrenStepperCell = StepperTableViewCell()
     let switchCell = "Switch"
     let roomTypeCell = "RoomType"
     
@@ -55,6 +57,9 @@ class AddReservationTableViewController: UITableViewController {
         checkOutPickerCell.datePicker.addTarget(self, action: #selector(dateValueChanged(_:)), for: .valueChanged)
         
         checkInPickerCell.datePicker.minimumDate = Calendar.current.startOfDay(for: Date())
+        
+        adultStepperCell.stepper.addTarget(self, action: #selector(stepperValueChanged(_:)), for: .valueChanged)
+        childrenStepperCell.stepper.addTarget(self, action: #selector(stepperValueChanged(_:)), for: .valueChanged)
         updateDatePickers()
     }
     
@@ -66,6 +71,15 @@ class AddReservationTableViewController: UITableViewController {
     }
     @objc func dateValueChanged(_ sender: UIDatePicker) {
         updateDatePickers()
+    }
+    
+    func updateSteppers() {
+        adultStepperCell.number.text = "\(Int(adultStepperCell.stepper.value))"
+        childrenStepperCell.number.text = "\(Int(childrenStepperCell.stepper.value))"
+    }
+    
+    @objc func stepperValueChanged(_ sender: UIStepper) {
+        updateSteppers()
     }
 
     // MARK: - Table view data source
@@ -124,10 +138,16 @@ class AddReservationTableViewController: UITableViewController {
             return checkOutLabelCell
         case [1,3]:
             return checkOutPickerCell
+        case [2,0]:
+            adultStepperCell.label.text = "Adults"
+            return adultStepperCell
+        case [2,1]:
+            childrenStepperCell.label.text = "Children"
+            return childrenStepperCell
         default:
             let cell = tableView.dequeueReusableCell(withIdentifier: textInputCell, for: indexPath)
             var content = cell.defaultContentConfiguration()
-            content.text = "Poop"
+            content.text = "WIP"
             cell.contentConfiguration = content
             return cell
         }
